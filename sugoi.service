@@ -1,0 +1,14 @@
+[Unit]
+Description=sugoi wakeup service
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+ExecStart=/usr/local/bin/sugo
+SyslogIdentifier=sugoi
+
+[Install]
+WantedBy=multi-user.target

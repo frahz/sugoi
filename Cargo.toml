@@ -12,3 +12,7 @@ actix-web = "4.3.1"
 tracing = "0.1.37"
 tracing-subscriber = "0.3.17"
 low = { git = "https://git.iatze.cc/frahz/low.git" }
+tokio = { version = "1.35.1", features = ["net"] }
+
+[profile.release]
+strip = "symbols"
