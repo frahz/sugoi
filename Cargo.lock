@@ -654,7 +654,7 @@ checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
 [[package]]
 name = "low"
 version = "0.1.0"
-source = "git+https://git.iatze.cc/frahz/low.git#104e61f97093d4581580f742429b3ac9d1b55fff"
+source = "git+https://github.com/frahz/low.git#c86fe5ee5781bacd44a0fbeeb0cb81c011ec5cd3"
 dependencies = [
  "nix",
 ]
