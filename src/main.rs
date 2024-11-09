@@ -1,8 +1,11 @@
-use actix_web::{get, web, App, HttpServer, Responder};
+use askama::Template;
+use axum::http::StatusCode;
+use axum::response::{Html, IntoResponse};
+use axum::{extract::Path, routing::get, Router};
 use low::macaddr::MacAddress;
 use low::wol::{create_socket, WolPacket};
 use tokio::io::AsyncWriteExt;
-use tokio::net::TcpStream;
+use tokio::net::{TcpListener, TcpStream};
 use tracing::{error, info};
 
 const MAGIC_PACKET: u8 = 0x77;
@@ -11,13 +14,13 @@ const DEFAULT_MAC_ADDRESS: MacAddress = MacAddress {
     bytes: [0x4C, 0xCC, 0x6A, 0xD0, 0x99, 0x22],
 };
 
-#[get("/hello/{name}")]
-async fn greet(name: web::Path<String>) -> impl Responder {
-    format!("Hello {name}!\n")
+#[derive(Template)]
+#[template(path = "status.html")]
+struct StatusTemplate<'a> {
+    name: &'a str,
 }
 
-#[get("/wake/{mac_address}")]
-async fn wake(mac_address: web::Path<String>) -> impl Responder {
+async fn wake(Path(mac_address): Path<String>) -> String {
     let mac_addr = MacAddress::parse(&mac_address).unwrap_or_else(|_| {
         error!("Invalid Mac Address: {mac_address}. Using default.");
         DEFAULT_MAC_ADDRESS
@@ -33,8 +36,7 @@ async fn wake(mac_address: web::Path<String>) -> impl Responder {
     "Sent wake command to server\n".to_string()
 }
 
-#[get("/sleep/{address}")]
-async fn sleep(address: web::Path<String>) -> impl Responder {
+async fn sleep(Path(address): Path<String>) -> String {
     // "127.0.0.1:8080"
     match TcpStream::connect(address.as_str()).await {
         Ok(mut stream) => {
@@ -53,12 +55,22 @@ async fn sleep(address: web::Path<String>) -> impl Responder {
     }
 }
 
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
+async fn status() -> impl IntoResponse {
+    let status = StatusTemplate { name: "John" };
+    (StatusCode::OK, Html(status.render().unwrap()))
+}
+
+#[tokio::main]
+async fn main() {
     tracing_subscriber::fmt::init();
     info!("Hello");
-    HttpServer::new(|| App::new().service(greet).service(wake).service(sleep))
-        .bind(("0.0.0.0", 8080))?
-        .run()
-        .await
+
+    let app = Router::new()
+        .route("/wake/:mac_address", get(wake))
+        .route("/sleep/:address", get(sleep))
+        .route("/status", get(status));
+
+    let listener = TcpListener::bind("0.0.0.0:8080").await.unwrap();
+
+    axum::serve(listener, app).await.unwrap();
 }
