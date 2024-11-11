@@ -1,1 +1,68 @@
-Hello, {{ name }}!
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title> Sugoi Status Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="/favicon.webp">
+  </head>
+  <body class="bg-black">
+    <header class="sticky top-0 z-50 w-full border-b border-neutral-700 backdrop-blur">
+      <div class="w-full mx-auto px-8 flex h-14 max-w-screen-2xl items-center">
+        <div class="mr-4 flex">
+          <a href="/status" class="mr-6 flex items-center space-x-2">
+          <img src="/favicon.webp" alt="logo" class="h-6 w-6">
+          <span class="hidden font-bold text-neutral-200 sm:inline-block">sugoi</span>
+          </a>
+        </div>
+        <div class="ml-auto flex items-center space-x-4">
+        </div>
+      </div>
+    </header>
+    <div class="2xl:container mx-auto px-8 py-5 flex-grow flex">
+      <div class="space-y-4 w-full flex-grow flex flex-col">
+        <div class="rounded-md border h-full border-neutral-700">
+          <div class="relative w-full overflow-auto h-full">
+            <div class="border-neutral-700">
+              <table class="w-full divide-y divide-neutral-700">
+                <thead>
+                  <tr>
+                    <th scope="col" class="px-6 py-3 text-start text-sm font-medium text-neutral-500">Timestamp</th>
+                    <th scope="col" class="px-6 py-3 text-start text-sm font-medium text-neutral-500">Command</th>
+                    <th scope="col" class="px-6 py-3 text-start text-sm font-medium text-neutral-500">Message</th>
+                    <th scope="col" class="px-6 py-3 text-start text-sm font-medium text-neutral-500">Status</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-neutral-700">
+                  {% for status in statuses.iter().rev() %}
+                  <tr class="hover:bg-neutral-700">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-200">{{status.timestamp}}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-200">{{status.command}}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-200">{{status.message}}</td>
+                    {% if status.status %}
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check-circle h-5 w-5">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                      </svg>
+                    </td>
+                    {% else %}
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-red-500">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x-circle h-5 w-5">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="15" y1="9" x2="9" y2="15"></line>
+                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                      </svg>
+                    </td>
+                    {% endif %}
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

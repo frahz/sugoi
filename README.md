@@ -11,5 +11,9 @@ cross build --target arm-unknown-linux-gnueabihf --release
 
 ## TODO
 
-- Get it working on nix
-- Add the service file
+- get it working with Nix (add package and service possibly)
+- use tailwind CLI to generate CSS
+- make table scrollable after certain amount of rows in the body
+- implement my own ring buffer to hold the status data (the current ones don't meet some of my requirements from skimming their docs)
+- separate header and table components into separate files for easier reading
+- add a root page as well
