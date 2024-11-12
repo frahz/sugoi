@@ -1,18 +1,17 @@
-use std::fmt::Display;
+mod status;
+
 use std::sync::Arc;
 
-use askama::Template;
 use axum::extract::State;
-use axum::http::StatusCode;
-use axum::response::{Html, IntoResponse};
 use axum::{extract::Path, routing::get, Router};
-use jiff::Zoned;
 use low::macaddr::MacAddress;
 use low::wol::{create_socket, WolPacket};
+use status::Status;
 use tokio::io::AsyncWriteExt;
 use tokio::net::{TcpListener, TcpStream};
 use tokio::sync::Mutex;
-use tower_http::services::ServeFile;
+use tower_http::compression::CompressionLayer;
+use tower_http::services::ServeDir;
 use tracing::{error, info};
 
 const MAGIC_PACKET: u8 = 0x77;
@@ -21,34 +20,7 @@ const DEFAULT_MAC_ADDRESS: MacAddress = MacAddress {
     bytes: [0x4C, 0xCC, 0x6A, 0xD0, 0x99, 0x22],
 };
 
-#[derive(Template)]
-#[template(path = "status.html")]
-struct StatusTemplate<'a> {
-    statuses: &'a [Status],
-}
-
-enum CommandState {
-    Wake,
-    Sleep,
-}
-
-impl Display for CommandState {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            CommandState::Wake => write!(f, "Wake"),
-            CommandState::Sleep => write!(f, "Sleep"),
-        }
-    }
-}
-
-struct Status {
-    timestamp: String,
-    command: CommandState,
-    message: String,
-    status: bool,
-}
-
-struct AppState {
+pub struct AppState {
     statuses: Arc<Mutex<Vec<Status>>>,
 }
 
@@ -76,12 +48,7 @@ async fn wake(State(state): State<Arc<AppState>>, Path(mac_address): Path<String
             (false, msg)
         }
     };
-    let status = Status {
-        timestamp: get_time(),
-        command: CommandState::Wake,
-        message: m,
-        status: s,
-    };
+    let status = Status::new(status::CommandState::Wake, m, s);
     let mut v = state.statuses.lock().await;
     v.push(status);
     "Sent wake command to server\n".to_string()
@@ -107,44 +74,10 @@ async fn sleep(State(state): State<Arc<AppState>>, Path(address): Path<String>) 
             (false, msg)
         }
     };
-    let status = Status {
-        timestamp: get_time(),
-        command: CommandState::Sleep,
-        message: m.clone(),
-        status: s,
-    };
+    let status = Status::new(status::CommandState::Sleep, m.clone(), s);
     let mut v = state.statuses.lock().await;
     v.push(status);
     m
-}
-
-async fn status(State(state): State<Arc<AppState>>) -> impl IntoResponse {
-    // let mut v = Vec::new();
-    // for i in 0..22 {
-    //     let s = if i % 2 == 0 {
-    //         Status {
-    //             timestamp: get_time(),
-    //             command: CommandState::Wake,
-    //             message: "Sent Wake to Mac Address: AA:BB:CC:DD:EE:FF".to_string(),
-    //             status: true,
-    //         }
-    //     } else {
-    //         Status {
-    //             timestamp: get_time(),
-    //             command: CommandState::Sleep,
-    //             message: "Sent sleep to server: inari:8253".to_string(),
-    //             status: false,
-    //         }
-    //     };
-    //     v.push(s);
-    // }
-    let v = state.statuses.lock().await;
-    let status = StatusTemplate { statuses: &v };
-    (StatusCode::OK, Html(status.render().unwrap()))
-}
-
-fn get_time() -> String {
-    Zoned::now().strftime("%Y-%m-%d %H:%M:%S %Z").to_string()
 }
 
 #[tokio::main]
@@ -156,12 +89,20 @@ async fn main() {
         statuses: Arc::new(Mutex::new(Vec::new())),
     });
 
+    let compression_layer = CompressionLayer::new()
+        .br(true)
+        .deflate(true)
+        .gzip(true)
+        .zstd(true);
+
     let app = Router::new()
         .route("/wake/:mac_address", get(wake))
         .route("/sleep/:address", get(sleep))
-        .route("/status", get(status))
+        .route("/status", get(status::status_root))
+        .route("/status/refresh", get(status::status_refresh))
         .with_state(shared_state)
-        .nest_service("/favicon.webp", ServeFile::new("assets/favicon.webp"));
+        .nest_service("/assets", ServeDir::new("assets"))
+        .layer(compression_layer);
 
     let listener = TcpListener::bind("0.0.0.0:8080").await.unwrap();
 
