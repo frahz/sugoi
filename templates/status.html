@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="scrollbox">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -43,21 +43,19 @@
         </div>
         <div class="rounded-md border h-full border-neutral-700">
           <div class="relative w-full overflow-auto h-full">
-            <div class="border-neutral-700">
-              <table class="w-full divide-y divide-neutral-700">
-                <thead>
-                  <tr>
-                    <th scope="col" class="px-6 py-3 text-start text-sm font-medium text-neutral-500">Timestamp</th>
-                    <th scope="col" class="px-6 py-3 text-start text-sm font-medium text-neutral-500">Command</th>
-                    <th scope="col" class="px-6 py-3 text-start text-sm font-medium text-neutral-500">Message</th>
-                    <th scope="col" class="px-6 py-3 text-start text-sm font-medium text-neutral-500">Status</th>
-                  </tr>
-                </thead>
-                <tbody id="status-elements" class="divide-y divide-neutral-700">
-                  {% include "status-tbody.html" %}
-                </tbody>
-              </table>
-            </div>
+            <table class="w-full divide-y divide-neutral-700">
+              <thead class="sticky top-0">
+                <tr>
+                  <th scope="col" class="px-6 py-3 text-start text-sm font-medium text-neutral-500">Timestamp</th>
+                  <th scope="col" class="px-6 py-3 text-start text-sm font-medium text-neutral-500">Command</th>
+                  <th scope="col" class="px-6 py-3 text-start text-sm font-medium text-neutral-500">Message</th>
+                  <th scope="col" class="px-6 py-3 text-start text-sm font-medium text-neutral-500">Status</th>
+                </tr>
+              </thead>
+              <tbody id="status-elements" class="divide-y divide-neutral-700">
+                {% include "status-tbody.html" %}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

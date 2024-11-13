@@ -64,7 +64,7 @@ async fn sleep(State(state): State<Arc<AppState>>, Path(address): Path<String>) 
             (true, msg)
         }
         Err(e) if e.kind() == std::io::ErrorKind::ConnectionRefused => {
-            info!("Connection Refused (Server might be sleeping): {e}\n");
+            info!("Connection Refused (Server might be sleeping): {e}");
             let msg = format!("Server is already asleep: {e}");
             (false, msg)
         }

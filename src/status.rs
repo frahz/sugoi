@@ -55,21 +55,19 @@ struct StatusVectorTemplate<'a> {
 
 pub async fn status_root(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     // let mut v = Vec::new();
-    // for i in 0..22 {
+    // for i in 0..25 {
     //     let s = if i % 2 == 0 {
-    //         Status {
-    //             timestamp: get_time(),
-    //             command: CommandState::Wake,
-    //             message: "Sent Wake to Mac Address: AA:BB:CC:DD:EE:FF".to_string(),
-    //             status: true,
-    //         }
+    //         Status::new(
+    //             CommandState::Wake,
+    //             "Sent Wake to Mac Address: AA:BB:CC:DD:EE:FF".to_string(),
+    //             true,
+    //         )
     //     } else {
-    //         Status {
-    //             timestamp: get_time(),
-    //             command: CommandState::Sleep,
-    //             message: "Sent sleep to server: inari:8253".to_string(),
-    //             status: false,
-    //         }
+    //         Status::new(
+    //             CommandState::Sleep,
+    //             "Sent sleep to server: inari:8253".to_string(),
+    //             false,
+    //         )
     //     };
     //     v.push(s);
     // }
@@ -83,7 +81,6 @@ pub async fn status_refresh(State(state): State<Arc<AppState>>) -> impl IntoResp
     let status = StatusVectorTemplate { statuses: &v };
     (StatusCode::OK, Html(status.render().unwrap()))
 }
-
 
 fn get_time() -> String {
     Zoned::now().strftime("%Y-%m-%d %H:%M:%S %Z").to_string()
