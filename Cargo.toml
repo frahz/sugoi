@@ -14,8 +14,9 @@ jiff = "0.1"
 tracing = "0.1"
 tracing-subscriber = "0.3"
 low = { git = "https://github.com/frahz/low.git" }
+serde = { version = "1.0", features = ["derive"] }
 tokio = { version = "1.41", features = ["full"] }
-tower-http = { version = "0.6.1", features = ["compression-full", "fs"] }
+tower-http = { version = "0.6", features = ["compression-full", "fs"] }
 
 [profile.release]
 strip = "symbols"

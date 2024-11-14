@@ -827,6 +827,7 @@ dependencies = [
  "axum",
  "jiff",
  "low",
+ "serde",
  "tokio",
  "tower-http",
  "tracing",

@@ -2,16 +2,14 @@ mod status;
 
 use std::sync::Arc;
 
-use axum::extract::State;
-use axum::{extract::Path, routing::get, Router};
+use axum::{extract::Path, extract::State, routing::get, Router};
 use low::macaddr::MacAddress;
 use low::wol::{create_socket, WolPacket};
 use status::Status;
 use tokio::io::AsyncWriteExt;
 use tokio::net::{TcpListener, TcpStream};
 use tokio::sync::Mutex;
-use tower_http::compression::CompressionLayer;
-use tower_http::services::ServeDir;
+use tower_http::{compression::CompressionLayer, services::ServeDir};
 use tracing::{error, info};
 
 const MAGIC_PACKET: u8 = 0x77;
