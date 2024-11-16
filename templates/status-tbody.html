@@ -1,8 +1,8 @@
 {% for status in statuses.iter().rev() %}
-  <tr class="hover:bg-neutral-700">
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-200">{{status.timestamp}}</td>
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-200">{{status.cmd}}</td>
-    <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-200">{{status.msg}}</td>
+  <tr class="hover:bg-neutral-800">
+    <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-50">{{status.timestamp}}</td>
+    <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-50">{{status.cmd}}</td>
+    <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-50">{{status.msg}}</td>
     {% if status.status %}
     <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">
       <svg

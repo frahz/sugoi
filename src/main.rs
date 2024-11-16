@@ -6,6 +6,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use api::get_api_routes;
+use axum::response::Redirect;
 use axum::{routing::get, Router};
 use status::Status;
 use tokio::net::TcpListener;
@@ -33,6 +34,7 @@ async fn main() {
         .zstd(true);
 
     let app = Router::new()
+        .route("/", get(|| async { Redirect::permanent("/status") }))
         .route("/status", get(status::status_root))
         .route("/status/refresh", get(status::status_refresh))
         .nest("/api", get_api_routes())

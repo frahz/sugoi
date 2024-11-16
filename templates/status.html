@@ -14,7 +14,7 @@
       <div class="space-y-4 w-full flex-grow flex flex-col">
         <div class="flex items-center justify-between">
           <div class="flex flex-1 items-center space-x-2 md:max-w-[70%] mr-2">
-            <p id="naming" class="text-neutral-200">Status Logs</p>
+            <p id="naming" class="font-roboto-mono text-neutral-50">Placeholder</p>
           </div>
           <button
             type="button"
@@ -22,7 +22,7 @@
             hx-get="/status/refresh"
             hx-swap="innerHtml"
             hx-target="#status-elements"
-            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm text-neutral-200 font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input border-neutral-700 bg-background shadow-sm hover:bg-accent hover:text-accent-foreground size-9 capitalize">
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm text-neutral-50 font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input border-neutral-800 bg-background shadow-sm hover:bg-accent hover:text-accent-foreground size-9 capitalize">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -41,18 +41,18 @@
             </svg>
           </button>
         </div>
-        <div class="rounded-md border h-full border-neutral-700">
+        <div class="rounded-md border h-full border-neutral-800">
           <div class="relative w-full overflow-auto h-full">
-            <table class="w-full divide-y divide-neutral-700">
+            <table class="w-full divide-y divide-neutral-800">
               <thead class="sticky top-0">
                 <tr>
-                  <th scope="col" class="px-6 py-3 text-start text-sm font-medium text-neutral-500">Timestamp</th>
-                  <th scope="col" class="px-6 py-3 text-start text-sm font-medium text-neutral-500">Command</th>
-                  <th scope="col" class="px-6 py-3 text-start text-sm font-medium text-neutral-500">Message</th>
-                  <th scope="col" class="px-6 py-3 text-start text-sm font-medium text-neutral-500">Status</th>
+                  <th scope="col" class="px-6 py-3 text-start text-sm font-medium text-neutral-400">Timestamp</th>
+                  <th scope="col" class="px-6 py-3 text-start text-sm font-medium text-neutral-400">Command</th>
+                  <th scope="col" class="px-6 py-3 text-start text-sm font-medium text-neutral-400">Message</th>
+                  <th scope="col" class="px-6 py-3 text-start text-sm font-medium text-neutral-400">Status</th>
                 </tr>
               </thead>
-              <tbody id="status-elements" class="font-roboto-mono divide-y divide-neutral-700">
+              <tbody id="status-elements" class="font-roboto-mono divide-y divide-neutral-800">
                 {% include "status-tbody.html" %}
               </tbody>
             </table>
