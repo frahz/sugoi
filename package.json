@@ -1,0 +1,12 @@
+{
+  "name": "sugoi",
+  "version": "0.2.0",
+  "scripts": {
+    "dev": "npx tailwindcss -i ./assets/tailwind.css -o ./assets/main.css --watch",
+    "prod": "npx tailwindcss -i ./assets/tailwind.css -o ./assets/main.css --minify"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "tailwindcss": "^3.4.14"
+  }
+}

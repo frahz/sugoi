@@ -11,5 +11,10 @@ cross build --target arm-unknown-linux-gnueabihf --release
 
 ## TODO
 
-- Get it working on nix
-- Add the service file
+- make table have pagination (scrollable seems complicated)
+- add input forms for sending wake and sleep requests through the UI
+- add a root page as well (redirect for now)
+- add all colors to a tailwind theme (so I don't need to search all over the place)
+- separate header and table components into separate files for easier reading
+- add Nix service (package has been added)
+- implement my own ring buffer to hold the status data (the current ones don't meet some of my requirements from skimming their docs)
