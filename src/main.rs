@@ -1,5 +1,7 @@
 mod status;
 
+use std::env;
+use std::path::PathBuf;
 use std::sync::Arc;
 
 use axum::{extract::Path, extract::State, routing::get, Router};
@@ -20,6 +22,35 @@ const DEFAULT_MAC_ADDRESS: MacAddress = MacAddress {
 
 pub struct AppState {
     statuses: Arc<Mutex<Vec<Status>>>,
+}
+
+#[tokio::main]
+async fn main() {
+    tracing_subscriber::fmt::init();
+    info!("Starting sugoi client");
+
+    let shared_state = Arc::new(AppState {
+        statuses: Arc::new(Mutex::new(Vec::new())),
+    });
+
+    let compression_layer = CompressionLayer::new()
+        .br(true)
+        .deflate(true)
+        .gzip(true)
+        .zstd(true);
+
+    let app = Router::new()
+        .route("/wake/:mac_address", get(wake))
+        .route("/sleep/:address", get(sleep))
+        .route("/status", get(status::status_root))
+        .route("/status/refresh", get(status::status_refresh))
+        .with_state(shared_state)
+        .nest_service("/assets", ServeDir::new(get_assets_dir()))
+        .layer(compression_layer);
+
+    let listener = TcpListener::bind("0.0.0.0:8080").await.unwrap();
+
+    axum::serve(listener, app).await.unwrap();
 }
 
 async fn wake(State(state): State<Arc<AppState>>, Path(mac_address): Path<String>) -> String {
@@ -78,31 +109,8 @@ async fn sleep(State(state): State<Arc<AppState>>, Path(address): Path<String>) 
     m
 }
 
-#[tokio::main]
-async fn main() {
-    tracing_subscriber::fmt::init();
-    info!("Starting sugoi client");
-
-    let shared_state = Arc::new(AppState {
-        statuses: Arc::new(Mutex::new(Vec::new())),
-    });
-
-    let compression_layer = CompressionLayer::new()
-        .br(true)
-        .deflate(true)
-        .gzip(true)
-        .zstd(true);
-
-    let app = Router::new()
-        .route("/wake/:mac_address", get(wake))
-        .route("/sleep/:address", get(sleep))
-        .route("/status", get(status::status_root))
-        .route("/status/refresh", get(status::status_refresh))
-        .with_state(shared_state)
-        .nest_service("/assets", ServeDir::new("assets"))
-        .layer(compression_layer);
-
-    let listener = TcpListener::bind("0.0.0.0:8080").await.unwrap();
-
-    axum::serve(listener, app).await.unwrap();
+fn get_assets_dir() -> PathBuf {
+    env::var("ASSETS_DIR")
+        .map(PathBuf::from)
+        .unwrap_or_else(|_| PathBuf::from("assets"))
 }

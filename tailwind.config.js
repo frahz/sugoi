@@ -5,6 +5,9 @@ module.exports = {
   content: ['./templates/**/*.html'],
   theme: {
     extend: {},
+    fontFamily: {
+      jetbrains: ['Jetbrains Mono', 'monospace']
+    }
   },
   plugins: [],
 }
