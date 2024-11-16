@@ -6,7 +6,7 @@ module.exports = {
   theme: {
     extend: {},
     fontFamily: {
-      jetbrains: ['Jetbrains Mono', 'monospace']
+      'roboto-mono': ['Roboto Mono', 'monospace']
     }
   },
   plugins: [],
