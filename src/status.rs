@@ -2,13 +2,16 @@ use std::fmt::Display;
 use std::sync::Arc;
 
 use askama::Template;
-use axum::extract::State;
-use axum::http::StatusCode;
+use axum::extract::{Query, State};
+use axum::http::{HeaderMap, StatusCode};
 use axum::response::{Html, IntoResponse};
 use jiff::Zoned;
+use serde::Deserialize;
+use tracing::info;
 
 use crate::AppState;
 
+#[derive(Clone, Copy, Debug)]
 pub enum CommandState {
     Wake,
     Sleep,
@@ -23,6 +26,7 @@ impl Display for CommandState {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct Status {
     timestamp: String,
     cmd: CommandState,
@@ -41,45 +45,95 @@ impl Status {
     }
 }
 
+#[derive(Deserialize, Debug)]
+#[serde(default)]
+pub struct StatusPagination {
+    sort: String,
+    page: usize,
+    per_page: usize,
+}
+
+impl Default for StatusPagination {
+    fn default() -> Self {
+        Self {
+            sort: "desc".to_string(),
+            page: 1,
+            per_page: 10,
+        }
+    }
+}
+
 #[derive(Template)]
 #[template(path = "status.html")]
-struct StatusTemplate<'a> {
-    statuses: &'a [Status],
+struct StatusRootTemplate {
+    statuses: Vec<Status>,
+    rows: usize,
+    current_page: usize,
+    total_pages: usize,
+}
+
+impl StatusRootTemplate {
+    fn new(statuses: Vec<Status>, current_page: usize, total_pages: usize) -> Self {
+        Self {
+            statuses,
+            rows: 10,
+            current_page,
+            total_pages,
+        }
+    }
 }
 
 #[derive(Template)]
-#[template(path = "status-tbody.html")]
-struct StatusVectorTemplate<'a> {
-    statuses: &'a [Status],
+#[template(path = "status/partial.html")]
+struct StatusPartialTemplate {
+    statuses: Vec<Status>,
+    rows: usize,
+    current_page: usize,
+    total_pages: usize,
 }
 
-pub async fn status_root(State(state): State<Arc<AppState>>) -> impl IntoResponse {
-    // let mut v = Vec::new();
-    // for i in 0..25 {
-    //     let s = if i % 2 == 0 {
-    //         Status::new(
-    //             CommandState::Wake,
-    //             "Sent Wake to Mac Address: AA:BB:CC:DD:EE:FF".to_string(),
-    //             true,
-    //         )
-    //     } else {
-    //         Status::new(
-    //             CommandState::Sleep,
-    //             "Sent sleep to server: inari:8253".to_string(),
-    //             false,
-    //         )
-    //     };
-    //     v.push(s);
-    // }
-    let v = state.statuses.lock().await;
-    let status = StatusTemplate { statuses: &v };
-    (StatusCode::OK, Html(status.render().unwrap()))
+impl StatusPartialTemplate {
+    fn new(statuses: Vec<Status>, current_page: usize, total_pages: usize) -> Self {
+        Self {
+            statuses,
+            rows: 10,
+            current_page,
+            total_pages,
+        }
+    }
 }
-
-pub async fn status_refresh(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+pub async fn status(
+    headers: HeaderMap,
+    State(state): State<Arc<AppState>>,
+    Query(pagination): Query<StatusPagination>,
+) -> impl IntoResponse {
     let v = state.statuses.lock().await;
-    let status = StatusVectorTemplate { statuses: &v };
-    (StatusCode::OK, Html(status.render().unwrap()))
+
+    info!("{:?}", pagination);
+
+    let pages = (v.len() as f64 / pagination.per_page as f64).ceil() as usize;
+    let start = (pagination.page - 1) * pagination.per_page;
+    let end = (pagination.page * pagination.per_page).min(v.len());
+    let s = if !v.is_empty() {
+        let mut s = v.clone();
+        if pagination.sort == "desc" {
+            s.reverse();
+        }
+        s[start..end].to_vec()
+    } else {
+        v.clone()
+    };
+
+    if let Some(target_val) = headers.get("Hx-Target") {
+        info!("Hx-Target is present: {:?}", target_val);
+        if target_val == "status-table" {
+            let temp = StatusPartialTemplate::new(s, pagination.page, pages);
+            return (StatusCode::OK, Html(temp.render().unwrap()));
+        }
+    }
+    let temp = StatusRootTemplate::new(s, pagination.page, pages);
+
+    (StatusCode::OK, Html(temp.render().unwrap()))
 }
 
 fn get_time() -> String {

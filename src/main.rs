@@ -35,8 +35,7 @@ async fn main() {
 
     let app = Router::new()
         .route("/", get(|| async { Redirect::permanent("/status") }))
-        .route("/status", get(status::status_root))
-        .route("/status/refresh", get(status::status_refresh))
+        .route("/status", get(status::status))
         .nest("/api", get_api_routes())
         .with_state(shared_state)
         .nest_service("/assets", ServeDir::new(get_assets_dir()))
@@ -59,5 +58,5 @@ fn get_port() -> u16 {
     env::var("PORT")
         .ok()
         .and_then(|port| port.parse().ok())
-        .unwrap_or_else(|| 8080)
+        .unwrap_or(8080)
 }
