@@ -1,6 +1,6 @@
 {
   "name": "sugoi",
-  "version": "0.2.0",
+  "version": "0.3.2",
   "scripts": {
     "dev": "npx tailwindcss -i ./assets/tailwind.css -o ./assets/main.css --watch",
     "prod": "npx tailwindcss -i ./assets/tailwind.css -o ./assets/main.css --minify"
