@@ -1,4 +1,4 @@
-<div class="rounded-md border h-full border-neutral-800">
+<div class="bg-black rounded-md border h-full border-neutral-800">
   <div class="relative w-full overflow-auto h-full">
     <table class="w-full divide-y divide-neutral-800">
       <thead class="sticky top-0">
@@ -17,36 +17,21 @@
           <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-50">{{status.msg}}</td>
           {% if status.status %}
           <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
               class="lucide lucide-circle-check size-5">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="m9 12 2 2 4-4"/>
+              <circle cx="12" cy="12" r="10" />
+              <path d="m9 12 2 2 4-4" />
             </svg>
           </td>
           {% else %}
           <td class="px-6 py-4 whitespace-nowrap text-sm text-red-500">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
               class="lucide lucide-circle-x size-5">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="m15 9-6 6"/><path d="m9 9 6 6"/>
+              <circle cx="12" cy="12" r="10" />
+              <path d="m15 9-6 6" />
+              <path d="m9 9 6 6" />
             </svg>
           </td>
           {% endif %}
