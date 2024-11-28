@@ -26,9 +26,19 @@ impl Display for CommandState {
     }
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Timestamp(Zoned);
+
+impl Display for Timestamp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let ts = self.0.strftime("%Y-%m-%d %H:%M:%S %Z");
+        write!(f, "{}", ts)
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct Status {
-    timestamp: String,
+    timestamp: Timestamp,
     cmd: CommandState,
     msg: String,
     status: bool,
@@ -37,7 +47,7 @@ pub struct Status {
 impl Status {
     pub fn new(cmd: CommandState, msg: String, status: bool) -> Self {
         Self {
-            timestamp: get_time(),
+            timestamp: Timestamp(Zoned::now()),
             cmd,
             msg,
             status,
@@ -134,8 +144,4 @@ pub async fn status(
     let temp = StatusRootTemplate::new(s, pagination.page, pages);
 
     (StatusCode::OK, Html(temp.render().unwrap()))
-}
-
-fn get_time() -> String {
-    Zoned::now().strftime("%Y-%m-%d %H:%M:%S %Z").to_string()
 }
