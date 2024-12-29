@@ -15,9 +15,12 @@
       "aarch64-linux"
       "aarch64-darwin"
     ];
-    overlays = [(import rust-overlay)];
     forEachSystem = nixpkgs.lib.genAttrs systems;
-    pkgsForEach = forEachSystem (system: import nixpkgs {inherit system overlays;});
+    pkgsForEach = forEachSystem (system:
+      import nixpkgs {
+        inherit system;
+        overlays = [rust-overlay.overlays.default];
+      });
   in {
     devShells = forEachSystem (system: let
       pkgs = pkgsForEach.${system};
