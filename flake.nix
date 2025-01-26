@@ -46,6 +46,7 @@
           allowBuiltinFetchGit = true;
         };
         nativeBuildInputs = [pkgs.makeWrapper];
+        buildInputs = [pkgs.sqlite];
 
         postInstall = ''
           mkdir -p $out/share
