@@ -2,3 +2,6 @@
 /result
 /node_modules
 /.direnv
+
+/db/*
+!/db/.gitkeep

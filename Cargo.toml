@@ -1,6 +1,6 @@
 [package]
 name = "sugoi"
-version = "0.3.3"
+version = "0.4.0"
 authors = [ "frahz <me@frahz.dev>" ]
 license = "MIT"
 edition = "2021"
@@ -13,10 +13,12 @@ axum = { version = "0.7", features = ["json"] }
 jiff = "0.1"
 tracing = "0.1"
 tracing-subscriber = "0.3"
-low = { git = "https://github.com/frahz/low.git" }
+low = { git = "https://github.com/frahz/low.git", tag = "0.3.0" }
 serde = { version = "1.0", features = ["derive"] }
-tokio = { version = "1.41", features = ["full"] }
+tokio = { version = "1.43", features = ["full"] }
 tower-http = { version = "0.6", features = ["compression-full", "fs"] }
+tokio-rusqlite = "0.6.0"
+rusqlite = "0.32.1"
 
 [profile.release]
 strip = "symbols"

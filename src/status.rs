@@ -1,4 +1,5 @@
 use std::fmt::Display;
+use std::str::FromStr;
 use std::sync::Arc;
 
 use askama::Template;
@@ -6,6 +7,8 @@ use axum::extract::{Query, State};
 use axum::http::{HeaderMap, StatusCode};
 use axum::response::{Html, IntoResponse};
 use jiff::Zoned;
+use rusqlite::types::{FromSql, FromSqlError, ToSqlOutput};
+use rusqlite::ToSql;
 use serde::Deserialize;
 use tracing::info;
 
@@ -26,6 +29,25 @@ impl Display for CommandState {
     }
 }
 
+impl ToSql for CommandState {
+    fn to_sql(&self) -> rusqlite::Result<ToSqlOutput> {
+        Ok(ToSqlOutput::from(match self {
+            CommandState::Wake => "Wake",
+            CommandState::Sleep => "Sleep",
+        }))
+    }
+}
+
+impl FromSql for CommandState {
+    fn column_result(value: rusqlite::types::ValueRef) -> rusqlite::types::FromSqlResult<Self> {
+        value.as_str().and_then(|s| match s {
+            "Wake" => Ok(CommandState::Wake),
+            "Sleep" => Ok(CommandState::Sleep),
+            _ => Err(FromSqlError::InvalidType)
+        })
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Timestamp(Zoned);
 
@@ -36,12 +58,28 @@ impl Display for Timestamp {
     }
 }
 
+impl ToSql for Timestamp {
+    fn to_sql(&self) -> rusqlite::Result<ToSqlOutput> {
+        let iso_string = self.0.to_string();
+        Ok(iso_string.into())
+    }
+}
+
+impl FromSql for Timestamp {
+    fn column_result(value: rusqlite::types::ValueRef) -> rusqlite::types::FromSqlResult<Self> {
+        value.as_str().and_then(|s| match Zoned::from_str(s) {
+            Ok(zoned) => Ok(Self(zoned)),
+            Err(err) => Err(FromSqlError::Other(Box::new(err))),
+        })
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct Status {
-    timestamp: Timestamp,
-    cmd: CommandState,
-    msg: String,
-    status: bool,
+    pub timestamp: Timestamp,
+    pub cmd: CommandState,
+    pub msg: String,
+    pub status: bool,
 }
 
 impl Status {
@@ -84,9 +122,10 @@ struct StatusRootTemplate {
 
 impl StatusRootTemplate {
     fn new(statuses: Vec<Status>, current_page: usize, total_pages: usize) -> Self {
+        let rows = statuses.len();
         Self {
             statuses,
-            rows: 10,
+            rows,
             current_page,
             total_pages,
         }
@@ -104,9 +143,10 @@ struct StatusPartialTemplate {
 
 impl StatusPartialTemplate {
     fn new(statuses: Vec<Status>, current_page: usize, total_pages: usize) -> Self {
+        let rows = statuses.len();
         Self {
             statuses,
-            rows: 10,
+            rows,
             current_page,
             total_pages,
         }
@@ -117,7 +157,7 @@ pub async fn status(
     State(state): State<Arc<AppState>>,
     Query(pagination): Query<StatusPagination>,
 ) -> impl IntoResponse {
-    let v = state.statuses.lock().await;
+    let v = state.db.get_statuses().await.expect("Couldn't get statuses");
 
     info!("{:?}", pagination);
 
@@ -125,13 +165,13 @@ pub async fn status(
     let start = (pagination.page - 1) * pagination.per_page;
     let end = (pagination.page * pagination.per_page).min(v.len());
     let s = if !v.is_empty() {
-        let mut s = v.clone();
+        let mut s = v;
         if pagination.sort == "desc" {
             s.reverse();
         }
         s[start..end].to_vec()
     } else {
-        v.clone()
+        v
     };
 
     if let Some(target_val) = headers.get("Hx-Target") {

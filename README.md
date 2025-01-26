@@ -9,12 +9,19 @@ To compile for Raspberry Pi Zero W:
 cross build --target arm-unknown-linux-gnueabihf --release
 ```
 
+Commands to populate the table and test api endpoints:
+```sh
+# Wake Command
+curl http://127.0.0.1:8080/api/wake -d "mac_address=11:22:33:44:55:66"
+
+# Sleep Command
+curl http://localhost:8080/api/sleep -d "address=localhost:8253"
+```
+
 ## TODO
 
-- make table have pagination (scrollable seems complicated)
 - add input forms for sending wake and sleep requests through the UI
 - add a root page as well (redirect for now)
+- add option to select amount of items displayed in table (pagination.per_page/rows)
 - add all colors to a tailwind theme (so I don't need to search all over the place)
-- separate header and table components into separate files for easier reading
-- add Nix service (package has been added)
-- implement my own ring buffer to hold the status data (the current ones don't meet some of my requirements from skimming their docs)
+- add Nix service

@@ -77,8 +77,7 @@ async fn wake(
         }
     };
     let status = Status::new(CommandState::Wake, m.clone(), s);
-    let mut v = state.statuses.lock().await;
-    v.push(status);
+    state.db.add_status(status).await.expect("Couldn't write to the database");
     Json(ApiResponse::new(m))
 }
 
@@ -106,7 +105,6 @@ async fn sleep(
         }
     };
     let status = Status::new(CommandState::Sleep, m.clone(), s);
-    let mut v = state.statuses.lock().await;
-    v.push(status);
+    state.db.add_status(status).await.expect("Couldn't write to the database");
     Json(ApiResponse::new(m))
 }
