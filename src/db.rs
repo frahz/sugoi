@@ -1,20 +1,20 @@
 use std::path::Path;
 
+use async_sqlite::{Client, ClientBuilder};
 use rusqlite::params;
-use tokio_rusqlite::Connection;
 
 use crate::status::Status;
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct Database {
-    conn: Connection,
+    client: Client,
 }
 
 impl Database {
-    pub async fn new<P: AsRef<Path>>(database_path: P) -> Result<Self, tokio_rusqlite::Error> {
-        let conn = Connection::open(database_path).await?;
+    pub async fn new<P: AsRef<Path>>(database_path: P) -> Result<Self, async_sqlite::Error> {
+        let client = ClientBuilder::new().path(database_path).open().await?;
 
-        conn.call(|conn| {
+        client.conn(|conn| {
             conn.execute(
                 "CREATE TABLE IF NOT EXISTS statuses (
                     timestamp TEXT NOT NULL,
@@ -27,12 +27,12 @@ impl Database {
             Ok(())
         })
         .await?;
-        Ok(Self { conn })
+        Ok(Self { client })
     }
 
-    pub async fn add_status(&self, status: Status) -> Result<(), tokio_rusqlite::Error> {
-        self.conn
-            .call(move |conn| {
+    pub async fn add_status(&self, status: Status) -> Result<(), async_sqlite::Error> {
+        self.client
+            .conn(move |conn| {
                 conn.execute(
                     "INSERT INTO statuses (timestamp, command, message, status)
                      VALUES (?1, ?2, ?3, ?4)",
@@ -43,9 +43,9 @@ impl Database {
             .await
     }
 
-    pub async fn get_statuses(&self) -> Result<Vec<Status>, tokio_rusqlite::Error> {
-        self.conn
-            .call(|conn| {
+    pub async fn get_statuses(&self) -> Result<Vec<Status>, async_sqlite::Error> {
+        self.client
+            .conn(|conn| {
                 let mut stmt =
                     conn.prepare("SELECT timestamp, command, message, status FROM statuses")?;
                 let statuses = stmt

@@ -43,7 +43,7 @@ impl FromSql for CommandState {
         value.as_str().and_then(|s| match s {
             "Wake" => Ok(CommandState::Wake),
             "Sleep" => Ok(CommandState::Sleep),
-            _ => Err(FromSqlError::InvalidType)
+            _ => Err(FromSqlError::InvalidType),
         })
     }
 }
@@ -157,7 +157,11 @@ pub async fn status(
     State(state): State<Arc<AppState>>,
     Query(pagination): Query<StatusPagination>,
 ) -> impl IntoResponse {
-    let v = state.db.get_statuses().await.expect("Couldn't get statuses");
+    let v = state
+        .db
+        .get_statuses()
+        .await
+        .expect("Couldn't get statuses");
 
     info!("{:?}", pagination);
 
