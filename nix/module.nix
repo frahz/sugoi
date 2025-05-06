@@ -38,7 +38,7 @@ in {
       serviceConfig = {
         Type = "simple";
         StateDirectory = "sugoi";
-        ExecStart = "${lib.getExe cfg.package}";
+        ExecStart = "${cfg.package}/bin/sugoi";
       };
     };
   };
