@@ -11,7 +11,7 @@ in {
     enable = lib.mkEnableOption "sugoi daemon";
     package = lib.mkOption {
       type = lib.types.package;
-      default = self.packages.${pkgs.system}.sugoi;
+      default = self.packages.${pkgs.system}.default;
     };
     port = lib.mkOption {
       type = lib.types.port;
