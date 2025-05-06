@@ -27,6 +27,7 @@
     in {
       default = pkgs.mkShell {
         buildInputs = [
+          pkgs.bacon
           pkgs.rust-bin.stable.latest.default
           pkgs.sqlite
         ];
