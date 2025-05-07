@@ -30,6 +30,13 @@
           pkgs.bacon
           pkgs.rust-bin.stable.latest.default
           pkgs.sqlite
+          pkgs.tailwindcss_3
+          (pkgs.writeShellScriptBin "tw-watch" ''
+            ${pkgs.tailwindcss_3}/bin/tailwindcss -i ./assets/tailwind.css -o ./assets/main.css --watch
+          '')
+          (pkgs.writeShellScriptBin "tw-prod" ''
+            ${pkgs.tailwindcss_3}/bin/tailwindcss -i ./assets/tailwind.css -o ./assets/main.css --minify
+          '')
         ];
       };
     });
