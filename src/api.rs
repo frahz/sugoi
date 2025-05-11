@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use axum::extract::State;
-use axum::routing::post;
+use axum::extract::{Query, State};
+use axum::routing::{get, post};
 use axum::{Form, Json, Router};
 use low::macaddr::MacAddress;
 use low::wol::{create_socket, WolPacket};
@@ -10,7 +10,7 @@ use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
 use tracing::{error, info};
 
-use crate::status::{CommandState, Status};
+use crate::status::{CommandState, Status, StatusPagination};
 use crate::AppState;
 
 const MAGIC_PACKET: u8 = 0x77;
@@ -30,11 +30,11 @@ struct Sleep {
 }
 
 #[derive(Serialize)]
-struct ApiResponse {
+struct PostResponse {
     message: String,
 }
 
-impl ApiResponse {
+impl PostResponse {
     fn new(message: String) -> Self {
         Self { message }
     }
@@ -44,12 +44,13 @@ pub fn get_api_routes() -> Router<Arc<AppState>> {
     Router::new()
         .route("/wake", post(wake))
         .route("/sleep", post(sleep))
+        .route("/status", get(status))
 }
 
 async fn wake(
     State(state): State<Arc<AppState>>,
     Form(wake_form): Form<Wake>,
-) -> Json<ApiResponse> {
+) -> Json<PostResponse> {
     let mac_addr = MacAddress::parse(&wake_form.mac_address).unwrap_or_else(|_| {
         error!(
             "Invalid Mac Address: {}. Using default.",
@@ -65,7 +66,7 @@ async fn wake(
             (
                 true,
                 format!(
-                    "Sent wake command to following MAC Address: {}",
+                    "MAC Address: {}",
                     wake_form.mac_address
                 ),
             )
@@ -82,19 +83,19 @@ async fn wake(
         .add_status(status)
         .await
         .expect("Couldn't write to the database");
-    Json(ApiResponse::new(m))
+    Json(PostResponse::new(m))
 }
 
 async fn sleep(
     State(state): State<Arc<AppState>>,
     Form(sleep_form): Form<Sleep>,
-) -> Json<ApiResponse> {
+) -> Json<PostResponse> {
     // "127.0.0.1:8080"
     let (s, m) = match TcpStream::connect(sleep_form.address.as_str()).await {
         Ok(mut stream) => {
             info!("Sending sleep to server: {}", sleep_form.address);
             stream.write_u8(MAGIC_PACKET).await.unwrap();
-            let msg = format!("Sent sleep command to server: {}", sleep_form.address);
+            let msg = format!("Server: {}", sleep_form.address);
             (true, msg)
         }
         Err(e) if e.kind() == std::io::ErrorKind::ConnectionRefused => {
@@ -114,5 +115,34 @@ async fn sleep(
         .add_status(status)
         .await
         .expect("Couldn't write to the database");
-    Json(ApiResponse::new(m))
+    Json(PostResponse::new(m))
+}
+
+async fn status(
+    State(state): State<Arc<AppState>>,
+    Query(pagination): Query<StatusPagination>,
+) -> Json<Vec<Status>> {
+    let v = state
+        .db
+        .get_statuses()
+        .await
+        .expect("Couldn't get statuses");
+
+    info!("{:?}", pagination);
+
+    let start = (pagination.page - 1) * pagination.per_page;
+    let end = (pagination.page * pagination.per_page).min(v.len());
+    if !v.is_empty() {
+        let mut s = v;
+        if pagination.sort == "desc" {
+            s.reverse();
+        }
+        if start >= end {
+            Json(Vec::new())
+        } else {
+            Json(s[start..end].to_vec())
+        }
+    } else {
+        Json(v)
+    }
 }

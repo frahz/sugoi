@@ -39,8 +39,8 @@ async fn main() {
         .zstd(true);
 
     let app = Router::new()
-        .route("/", get(|| async { Redirect::permanent("/status") }))
-        .route("/status", get(status::status))
+        .route("/", get(status::status))
+        .route("/status", get(|| async { Redirect::permanent("/") }))
         .nest("/api", get_api_routes())
         .with_state(shared_state)
         .nest_service("/assets", ServeDir::new(get_assets_dir()))

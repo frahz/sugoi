@@ -9,12 +9,12 @@ use axum::response::{Html, IntoResponse};
 use jiff::Zoned;
 use rusqlite::types::{FromSql, FromSqlError, ToSqlOutput};
 use rusqlite::ToSql;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use tracing::info;
 
 use crate::AppState;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Serialize)]
 pub enum CommandState {
     Wake,
     Sleep,
@@ -58,6 +58,18 @@ impl Display for Timestamp {
     }
 }
 
+impl Serialize for Timestamp {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_newtype_struct(
+            "timestamp",
+            &self.0.strftime("%Y-%m-%d %H:%M:%S %Z").to_string(),
+        )
+    }
+}
+
 impl ToSql for Timestamp {
     fn to_sql(&self) -> rusqlite::Result<ToSqlOutput> {
         let iso_string = self.0.to_string();
@@ -74,7 +86,7 @@ impl FromSql for Timestamp {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub struct Status {
     pub timestamp: Timestamp,
     pub cmd: CommandState,
@@ -96,9 +108,9 @@ impl Status {
 #[derive(Deserialize, Debug)]
 #[serde(default)]
 pub struct StatusPagination {
-    sort: String,
-    page: usize,
-    per_page: usize,
+    pub sort: String,
+    pub page: usize,
+    pub per_page: usize,
 }
 
 impl Default for StatusPagination {
@@ -173,7 +185,11 @@ pub async fn status(
         if pagination.sort == "desc" {
             s.reverse();
         }
-        s[start..end].to_vec()
+        if start >= end {
+            Vec::new()
+        } else {
+            s[start..end].to_vec()
+        }
     } else {
         v
     };
