@@ -1,15 +1,15 @@
 <div class="flex items-center justify-between px-2">
-  <div class="flex-1 text-sm text-neutral-400">
+  <div class="flex-1 font-roboto-mono text-sm text-neutral-400">
     {{ rows }} row(s) loaded
   </div>
   <div class="flex items-center space-x-6 lg:space-x-8">
-    <div class="flex w-[100px] items-center justify-center text-sm font-medium text-neutral-50">
+    <div class="flex w-[100px] items-center justify-center text-sm font-roboto-mono text-neutral-50">
       Page {{ current_page }} of {{ total_pages }}
     </div>
     <div class="bg-black flex items-center space-x-2">
       <button type="button" tabindex="0"
         class="btn focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-300 hidden size-8 p-0 lg:flex"
-        hx-get="/status?page=1" hx-target="#status-table" hx-swap="outerHTML" {% if current_page==1 %} disabled {% endif
+        hx-get="/?page=1" hx-target="#status-table" hx-swap="outerHTML" {% if current_page==1 %} disabled {% endif
         %}>
         <span class="sr-only">Go to first page</span>
         <svg width="15" height="15" role="img" aria-label="double arrow left," viewBox="0 0 15 15" fill="currentColor"
@@ -21,7 +21,7 @@
       </button>
       <button type="button" tabindex="0"
         class="inline-flex btn focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-300 size-8 p-0"
-        hx-get="/status?page={{current_page - 1}}" hx-target="#status-table" hx-swap="outerHTML" {% if current_page - 1
+        hx-get="/?page={{current_page - 1}}" hx-target="#status-table" hx-swap="outerHTML" {% if current_page - 1
         < 1 %} disabled {% endif %}>
         <span class="sr-only">Go to previous page</span>
         <svg width="15" height="15" role="img" aria-label="chevron left," viewBox="0 0 15 15" fill="currentColor"
@@ -33,7 +33,7 @@
       </button>
       <button type="button" tabindex="0"
         class="inline-flex btn focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-300 size-8 p-0"
-        hx-get="/status?page={{current_page + 1}}" hx-target="#status-table" hx-swap="outerHTML" {% if current_page + 1>
+        hx-get="/?page={{current_page + 1}}" hx-target="#status-table" hx-swap="outerHTML" {% if current_page + 1>
         total_pages %} disabled {% endif %}
         >
         <span class="sr-only">Go to next page</span>
@@ -46,7 +46,7 @@
       </button>
       <button type="button" tabindex="0"
         class="btn focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-300 hidden size-8 p-0 lg:flex"
-        hx-get="/status?page={{total_pages}}&per_page={{rows}}" hx-target="#status-table" hx-swap="outerHTML" {% if
+        hx-get="/?page={{total_pages}}&per_page={{rows}}" hx-target="#status-table" hx-swap="outerHTML" {% if
         current_page==total_pages %} disabled {% endif %}>
         <span class="sr-only">Go to last page</span>
         <svg width="15" height="15" role="img" aria-label="double arrow right," viewBox="0 0 15 15" fill="currentColor"

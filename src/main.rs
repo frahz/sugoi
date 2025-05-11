@@ -22,7 +22,7 @@ pub struct AppState {
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt::init();
-    info!("Starting sugoi client");
+    info!("Starting sugoi client | Version: {}", env!("CARGO_PKG_VERSION"));
 
     let db_path = get_db_path();
     info!("Database path: {}", db_path.display());

@@ -6,6 +6,7 @@ use askama::Template;
 use axum::extract::{Query, State};
 use axum::http::{HeaderMap, StatusCode};
 use axum::response::{Html, IntoResponse};
+use git_version::git_version;
 use jiff::Zoned;
 use rusqlite::types::{FromSql, FromSqlError, ToSqlOutput};
 use rusqlite::ToSql;
@@ -124,22 +125,27 @@ impl Default for StatusPagination {
 }
 
 #[derive(Template)]
-#[template(path = "status.html")]
-struct StatusRootTemplate {
+#[template(path = "root.html")]
+struct RootTemplate {
     statuses: Vec<Status>,
     rows: usize,
     current_page: usize,
     total_pages: usize,
+    version: &'static str,
+    git_ver: &'static str,
 }
 
-impl StatusRootTemplate {
+impl RootTemplate {
     fn new(statuses: Vec<Status>, current_page: usize, total_pages: usize) -> Self {
         let rows = statuses.len();
+        let version = env!("CARGO_PKG_VERSION");
         Self {
             statuses,
             rows,
             current_page,
             total_pages,
+            version,
+            git_ver: git_version!(),
         }
     }
 }
@@ -201,7 +207,7 @@ pub async fn status(
             return (StatusCode::OK, Html(temp.render().unwrap()));
         }
     }
-    let temp = StatusRootTemplate::new(s, pagination.page, pages);
+    let temp = RootTemplate::new(s, pagination.page, pages);
 
     (StatusCode::OK, Html(temp.render().unwrap()))
 }
