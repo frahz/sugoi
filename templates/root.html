@@ -11,12 +11,53 @@
 </head>
 
 <body
-  class="absolute inset-0 h-full w-full bg-black bg-[radial-gradient(#262626_1px,transparent_1px)] [background-size:24px_24px]">
+  class="inset-0 w-full bg-black bg-[radial-gradient(#262626_1px,transparent_1px)] [background-size:24px_24px] flex flex-col min-h-screen">
   {% include "header.html" %}
 
-  <div class="2xl:container mx-auto px-8 py-5 flex-grow flex">
+  <main class="2xl:container px-8 py-5 space-y-5 flex-grow flex flex-col">
+    <div class="w-full mx-auto justify-start space-x-0 space-y-4 sm:space-x-1 sm:space-y-0 flex flex-col sm:flex-row">
+      <form hx-post="/api/wake" hx-target="#response-div" class="space-y-2 w-auto">
+        <label for="mac-address" class="font-roboto-mono text-neutral-50">Wake Device</label>
+        <div class="flex flex-row space-x-2 w-full sm:w-72">
+          <input name="mac_address" type="text" placeholder="00:1A:2B:3C:4D:5E"
+            class="form-input block w-full sm:w-5/6 rounded-md border border-neutral-800 bg-black px-3 size-9 font-roboto-mono text-sm text-neutral-50 placeholder:text-neutral-500 disabled:cursor-not-allowed disabled:opacity-50 invalid:border-red-500 valid:[&:not(:placeholder-shown):not(:focus)]:border-green-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-300"
+            pattern="([0-9A-Fa-f]{2}[:\-]){5}([0-9A-Fa-f]{2})"
+            title="Please enter a valid MAC address in the format XX:XX:XX:XX:XX:XX" />
+          <button type="submit" tabindex="0"
+            class="flex-none inline-flex btn focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-300 size-9 p-0 capitalize">
+            <span class="sr-only">Wake up your device</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-power-icon lucide-power size-4">
+              <path d="M12 2v10" />
+              <path d="M18.4 6.6a9 9 0 1 1-12.77.04" />
+            </svg>
+          </button>
+        </div>
+      </form>
+      <form hx-post="/api/sleep" hx-target="#response-div" class="space-y-2 w-auto">
+        <label for="address" class="font-roboto-mono text-neutral-50">Sleep Device</label>
+        <div class="flex flex-row space-x-2 w-full sm:w-72">
+          <input name="address" type="text" placeholder="server:8080"
+            class="form-input block w-full sm:w-5/6 rounded-md border border-neutral-800 bg-black px-3 size-9 font-roboto-mono text-sm text-neutral-50 placeholder:text-neutral-500 disabled:cursor-not-allowed disabled:opacity-50 invalid:border-red-500 valid:[&:not(:placeholder-shown):not(:focus)]:border-green-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-300"
+            pattern=".*:[0-9]{4}"
+            title="Please enter a valid server address in the format of ip:port" />
+          <button type="submit" tabindex="0"
+            class="flex-none inline-flex btn focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-300 size-9 p-0 capitalize">
+            <span class="sr-only">Put your machine to sleep</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-moon-icon lucide-moon size-4">
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+            </svg>
+          </button>
+        </div>
+      </form>
+    </div>
     {% include "status/partial.html" %}
-  </div>
+    <div id="response-div"></div>
+  </main>
+
   {% include "footer.html" %}
 </body>
 

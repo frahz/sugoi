@@ -1,7 +1,7 @@
-<div id="status-table" class="space-y-4 w-full flex-grow flex flex-col">
+<div id="status-table" class="space-y-4 w-full flex flex-col">
   <div class="flex items-center justify-between">
     <div class="flex flex-1 items-center space-x-2 md:max-w-[70%] mr-2">
-    <!--   <p id="naming" class="font-roboto-mono text-neutral-50">Status Logs Table</p> -->
+      <p id="naming" class="font-roboto-mono text-neutral-50">Status Logs</p>
     </div>
     <button type="button" tabindex="0" hx-get="/status?page={{current_page}}&per_page{{rows}}" hx-swap="outerHTML"
       hx-target="#status-table"
