@@ -5,12 +5,11 @@ use axum::routing::{get, post};
 use axum::{Form, Json, Router};
 use low::macaddr::MacAddress;
 use low::wol::{create_socket, WolPacket};
-use serde::{Deserialize, Serialize};
 use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
 use tracing::{error, info};
 
-use crate::status::{CommandState, Status, StatusPagination};
+use crate::models::{CommandState, PostResponse, SleepForm, Status, StatusPagination, WakeForm};
 use crate::AppState;
 
 const MAGIC_PACKET: u8 = 0x77;
@@ -18,27 +17,6 @@ const DEFAULT_BROADCAST_IP: &str = "255.255.255.255:9";
 const DEFAULT_MAC_ADDRESS: MacAddress = MacAddress {
     bytes: [0x4C, 0xCC, 0x6A, 0xD0, 0x99, 0x22],
 };
-
-#[derive(Deserialize)]
-struct Wake {
-    mac_address: String,
-}
-
-#[derive(Deserialize)]
-struct Sleep {
-    address: String,
-}
-
-#[derive(Serialize)]
-struct PostResponse {
-    message: String,
-}
-
-impl PostResponse {
-    fn new(message: String) -> Self {
-        Self { message }
-    }
-}
 
 pub fn get_api_routes() -> Router<Arc<AppState>> {
     Router::new()
@@ -49,7 +27,7 @@ pub fn get_api_routes() -> Router<Arc<AppState>> {
 
 async fn wake(
     State(state): State<Arc<AppState>>,
-    Form(wake_form): Form<Wake>,
+    Form(wake_form): Form<WakeForm>,
 ) -> Json<PostResponse> {
     let mac_addr = MacAddress::parse(&wake_form.mac_address).unwrap_or_else(|_| {
         error!(
@@ -63,13 +41,7 @@ async fn wake(
     let (s, m) = match socket.send_to(&wol_packet.0, DEFAULT_BROADCAST_IP) {
         Ok(_) => {
             info!("Sent wake to server packet len: {}", &wol_packet.0.len());
-            (
-                true,
-                format!(
-                    "MAC Address: {}",
-                    wake_form.mac_address
-                ),
-            )
+            (true, format!("MAC Address: {}", wake_form.mac_address))
         }
         Err(e) => {
             let msg = format!("Failed to send packet: {e}");
@@ -88,7 +60,7 @@ async fn wake(
 
 async fn sleep(
     State(state): State<Arc<AppState>>,
-    Form(sleep_form): Form<Sleep>,
+    Form(sleep_form): Form<SleepForm>,
 ) -> Json<PostResponse> {
     // "127.0.0.1:8080"
     let (s, m) = match TcpStream::connect(sleep_form.address.as_str()).await {

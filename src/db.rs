@@ -3,7 +3,7 @@ use std::path::Path;
 use async_sqlite::{Client, ClientBuilder};
 use rusqlite::params;
 
-use crate::status::Status;
+use crate::models::Status;
 
 #[derive(Clone)]
 pub struct Database {
@@ -14,19 +14,20 @@ impl Database {
     pub async fn new<P: AsRef<Path>>(database_path: P) -> Result<Self, async_sqlite::Error> {
         let client = ClientBuilder::new().path(database_path).open().await?;
 
-        client.conn(|conn| {
-            conn.execute(
-                "CREATE TABLE IF NOT EXISTS statuses (
+        client
+            .conn(|conn| {
+                conn.execute(
+                    "CREATE TABLE IF NOT EXISTS statuses (
                     timestamp TEXT NOT NULL,
                     command   TEXT NOT NULL,
                     message   TEXT NOT NULL,
                     status    BOOLEAN NOT NULL
                 )",
-                [],
-            )?;
-            Ok(())
-        })
-        .await?;
+                    [],
+                )?;
+                Ok(())
+            })
+            .await?;
         Ok(Self { client })
     }
 

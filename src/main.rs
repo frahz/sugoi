@@ -1,6 +1,8 @@
 mod api;
 mod db;
-mod status;
+mod models;
+mod handlers;
+mod templates;
 
 use std::env;
 use std::path::PathBuf;
@@ -22,7 +24,10 @@ pub struct AppState {
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt::init();
-    info!("Starting sugoi client | Version: {}", env!("CARGO_PKG_VERSION"));
+    info!(
+        "Starting sugoi client | Version: {}",
+        env!("CARGO_PKG_VERSION")
+    );
 
     let db_path = get_db_path();
     info!("Database path: {}", db_path.display());
@@ -39,8 +44,8 @@ async fn main() {
         .zstd(true);
 
     let app = Router::new()
-        .route("/", get(status::status))
-        .route("/status", get(|| async { Redirect::permanent("/") }))
+        .route("/", get(handlers::status))
+        .route("/status", get(|| async { Redirect::temporary("/") }))
         .nest("/api", get_api_routes())
         .with_state(shared_state)
         .nest_service("/assets", ServeDir::new(get_assets_dir()))

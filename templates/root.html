@@ -19,8 +19,8 @@
       <form hx-post="/api/wake" hx-target="#response-div" class="space-y-2 w-auto">
         <label for="mac-address" class="font-roboto-mono text-neutral-50">Wake Device</label>
         <div class="flex flex-row space-x-2 w-full sm:w-72">
-          <input name="mac_address" type="text" placeholder="00:1A:2B:3C:4D:5E"
-            class="form-input block w-full sm:w-5/6 rounded-md border border-neutral-800 bg-black px-3 size-9 font-roboto-mono text-sm text-neutral-50 placeholder:text-neutral-500 disabled:cursor-not-allowed disabled:opacity-50 invalid:border-red-500 valid:[&:not(:placeholder-shown):not(:focus)]:border-green-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-300"
+          <input required name="mac_address" type="text" placeholder="00:1A:2B:3C:4D:5E"
+            class="form-input block w-full sm:w-5/6 rounded-md border border-neutral-800 bg-black px-3 size-9 font-roboto-mono text-sm text-neutral-50 placeholder:text-neutral-500 disabled:cursor-not-allowed disabled:opacity-50 [&:not(:placeholder-shown):not(:focus)]:invalid:border-red-500 valid:border-green-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-300"
             pattern="([0-9A-Fa-f]{2}[:\-]){5}([0-9A-Fa-f]{2})"
             title="Please enter a valid MAC address in the format XX:XX:XX:XX:XX:XX" />
           <button type="submit" tabindex="0"
@@ -38,10 +38,9 @@
       <form hx-post="/api/sleep" hx-target="#response-div" class="space-y-2 w-auto">
         <label for="address" class="font-roboto-mono text-neutral-50">Sleep Device</label>
         <div class="flex flex-row space-x-2 w-full sm:w-72">
-          <input name="address" type="text" placeholder="server:8080"
-            class="form-input block w-full sm:w-5/6 rounded-md border border-neutral-800 bg-black px-3 size-9 font-roboto-mono text-sm text-neutral-50 placeholder:text-neutral-500 disabled:cursor-not-allowed disabled:opacity-50 invalid:border-red-500 valid:[&:not(:placeholder-shown):not(:focus)]:border-green-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-300"
-            pattern=".*:[0-9]{4}"
-            title="Please enter a valid server address in the format of ip:port" />
+          <input required name="address" type="text" placeholder="server:8080"
+            class="form-input block w-full sm:w-5/6 rounded-md border border-neutral-800 bg-black px-3 size-9 font-roboto-mono text-sm text-neutral-50 placeholder:text-neutral-500 disabled:cursor-not-allowed disabled:opacity-50 [&:not(:placeholder-shown):not(:focus)]:invalid:border-red-500 valid:border-green-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-300"
+            pattern=".*:[0-9]{4}" title="Please enter a valid server address in the format of ip:port" />
           <button type="submit" tabindex="0"
             class="flex-none inline-flex btn focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-300 size-9 p-0 capitalize">
             <span class="sr-only">Put your machine to sleep</span>
