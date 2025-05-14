@@ -9,7 +9,9 @@ use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
 use tracing::{error, info};
 
-use crate::models::{CommandState, PostResponse, SleepForm, Status, StatusPagination, WakeForm};
+use crate::models::{
+    CommandState, PostResponse, SleepForm, Status, StatusPagination, StatusRecord, WakeForm,
+};
 use crate::AppState;
 
 const MAGIC_PACKET: u8 = 0x77;
@@ -93,28 +95,38 @@ async fn sleep(
 async fn status(
     State(state): State<Arc<AppState>>,
     Query(pagination): Query<StatusPagination>,
-) -> Json<Vec<Status>> {
+) -> Json<StatusRecord> {
     let v = state
         .db
         .get_statuses()
         .await
         .expect("Couldn't get statuses");
+    let total_items = v.len();
 
     info!("{:?}", pagination);
 
+    let pages = (total_items as f64 / pagination.per_page as f64).ceil() as usize;
     let start = (pagination.page - 1) * pagination.per_page;
-    let end = (pagination.page * pagination.per_page).min(v.len());
-    if !v.is_empty() {
+    let end = (pagination.page * pagination.per_page).min(total_items);
+    let statuses = if !v.is_empty() {
         let mut s = v;
         if pagination.sort == "desc" {
             s.reverse();
         }
         if start >= end {
-            Json(Vec::new())
+            Vec::new()
         } else {
-            Json(s[start..end].to_vec())
+            s[start..end].to_vec()
         }
     } else {
-        Json(v)
-    }
+        v
+    };
+
+    Json(StatusRecord::new(
+        pagination.page,
+        pagination.per_page,
+        pages,
+        total_items,
+        statuses,
+    ))
 }

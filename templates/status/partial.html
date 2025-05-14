@@ -3,7 +3,7 @@
     <div class="flex flex-1 items-center space-x-2 md:max-w-[70%] mr-2">
       <p id="naming" class="font-roboto-mono text-neutral-50">Status Logs</p>
     </div>
-    <button type="button" tabindex="0" hx-get="/status?page={{current_page}}&per_page{{rows}}" hx-swap="outerHTML"
+    <button type="button" tabindex="0" hx-get="/status?page={{record.page}}&per_page{{rows}}" hx-swap="outerHTML"
       hx-target="#status-table"
       class="inline-flex btn focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-300 size-9 capitalize">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"

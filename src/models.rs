@@ -118,6 +118,33 @@ impl Status {
     }
 }
 
+#[derive(Clone, Debug, Serialize)]
+pub struct StatusRecord {
+    pub page: usize,
+    pub per_page: usize,
+    pub total_pages: usize,
+    pub total_items: usize,
+    pub statuses: Vec<Status>,
+}
+
+impl StatusRecord {
+    pub fn new(
+        page: usize,
+        per_page: usize,
+        total_pages: usize,
+        total_items: usize,
+        statuses: Vec<Status>,
+    ) -> Self {
+        Self {
+            page,
+            per_page,
+            total_pages,
+            total_items,
+            statuses,
+        }
+    }
+}
+
 #[derive(Deserialize, Debug)]
 #[serde(default)]
 pub struct StatusPagination {

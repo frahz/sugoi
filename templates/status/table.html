@@ -10,7 +10,7 @@
         </tr>
       </thead>
       <tbody id="status-elements" class="font-roboto-mono divide-y divide-neutral-800">
-        {% for status in statuses.iter() %}
+        {% for status in record.statuses.iter() %}
         <tr class="hover:bg-neutral-800">
           <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-50">{{status.timestamp}}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-50">{{status.cmd}}</td>

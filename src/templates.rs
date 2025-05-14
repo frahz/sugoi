@@ -1,28 +1,24 @@
 use askama::Template;
 use git_version::git_version;
 
-use crate::models::Status;
+use crate::models::StatusRecord;
 
 #[derive(Template)]
 #[template(path = "root.html")]
 pub struct RootTemplate {
-    statuses: Vec<Status>,
+    record: StatusRecord,
     rows: usize,
-    current_page: usize,
-    total_pages: usize,
     version: &'static str,
     git_ver: &'static str,
 }
 
 impl RootTemplate {
-    pub fn new(statuses: Vec<Status>, current_page: usize, total_pages: usize) -> Self {
-        let rows = statuses.len();
+    pub fn new(record: StatusRecord) -> Self {
+        let rows = record.statuses.len();
         let version = env!("CARGO_PKG_VERSION");
         Self {
-            statuses,
+            record,
             rows,
-            current_page,
-            total_pages,
             version,
             git_ver: git_version!(),
         }
@@ -32,20 +28,13 @@ impl RootTemplate {
 #[derive(Template)]
 #[template(path = "status/partial.html")]
 pub struct StatusPartialTemplate {
-    statuses: Vec<Status>,
+    record: StatusRecord,
     rows: usize,
-    current_page: usize,
-    total_pages: usize,
 }
 
 impl StatusPartialTemplate {
-    pub fn new(statuses: Vec<Status>, current_page: usize, total_pages: usize) -> Self {
-        let rows = statuses.len();
-        Self {
-            statuses,
-            rows,
-            current_page,
-            total_pages,
-        }
+    pub fn new(record: StatusRecord) -> Self {
+        let rows = record.statuses.len();
+        Self { record, rows }
     }
 }

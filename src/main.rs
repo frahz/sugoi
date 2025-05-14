@@ -1,7 +1,7 @@
 mod api;
 mod db;
-mod models;
 mod handlers;
+mod models;
 mod templates;
 
 use std::env;
