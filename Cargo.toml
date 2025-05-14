@@ -8,7 +8,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-askama = "0.12"
+askama = "0.14"
 axum = { version = "0.8", features = ["json"] }
 jiff = "0.2"
 tracing = "0.1"
