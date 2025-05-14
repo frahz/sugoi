@@ -17,11 +17,11 @@ pub struct SleepForm {
 }
 
 #[derive(Serialize)]
-pub struct PostResponse {
+pub struct ApiResponse {
     message: String,
 }
 
-impl PostResponse {
+impl ApiResponse {
     pub fn new(message: String) -> Self {
         Self { message }
     }
@@ -161,4 +161,32 @@ impl Default for StatusPagination {
             per_page: 10,
         }
     }
+}
+
+pub fn get_record(statuses: Vec<Status>, pagination: StatusPagination) -> StatusRecord {
+    let total_items = statuses.len();
+    let pages = (total_items as f64 / pagination.per_page as f64).ceil() as usize;
+    let start = (pagination.page - 1) * pagination.per_page;
+    let end = (pagination.page * pagination.per_page).min(total_items);
+    let statuses = if !statuses.is_empty() {
+        let mut s = statuses;
+        if pagination.sort == "desc" {
+            s.reverse();
+        }
+        if start >= end {
+            Vec::new()
+        } else {
+            s[start..end].to_vec()
+        }
+    } else {
+        statuses
+    };
+
+    StatusRecord::new(
+        pagination.page,
+        pagination.per_page,
+        pages,
+        total_items,
+        statuses,
+    )
 }

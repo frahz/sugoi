@@ -10,15 +10,13 @@ use tokio::net::TcpStream;
 use tracing::{error, info};
 
 use crate::models::{
-    CommandState, PostResponse, SleepForm, Status, StatusPagination, StatusRecord, WakeForm,
+    get_record, CommandState, ApiResponse, SleepForm, Status, StatusPagination, StatusRecord,
+    WakeForm,
 };
 use crate::AppState;
 
 const MAGIC_PACKET: u8 = 0x77;
 const DEFAULT_BROADCAST_IP: &str = "255.255.255.255:9";
-const DEFAULT_MAC_ADDRESS: MacAddress = MacAddress {
-    bytes: [0x4C, 0xCC, 0x6A, 0xD0, 0x99, 0x22],
-};
 
 pub fn get_api_routes() -> Router<Arc<AppState>> {
     Router::new()
@@ -30,14 +28,12 @@ pub fn get_api_routes() -> Router<Arc<AppState>> {
 async fn wake(
     State(state): State<Arc<AppState>>,
     Form(wake_form): Form<WakeForm>,
-) -> Json<PostResponse> {
-    let mac_addr = MacAddress::parse(&wake_form.mac_address).unwrap_or_else(|_| {
-        error!(
-            "Invalid Mac Address: {}. Using default.",
-            wake_form.mac_address
-        );
-        DEFAULT_MAC_ADDRESS
-    });
+) -> Json<ApiResponse> {
+    let Ok(mac_addr) = MacAddress::parse(&wake_form.mac_address) else {
+        let msg = format!("Invalid Mac Address: {}.", wake_form.mac_address);
+        error!(msg);
+        return Json(ApiResponse::new(msg));
+    };
     let wol_packet = WolPacket::create(&mac_addr);
     let socket = create_socket(DEFAULT_BROADCAST_IP).unwrap();
     let (s, m) = match socket.send_to(&wol_packet.0, DEFAULT_BROADCAST_IP) {
@@ -57,13 +53,13 @@ async fn wake(
         .add_status(status)
         .await
         .expect("Couldn't write to the database");
-    Json(PostResponse::new(m))
+    Json(ApiResponse::new(m))
 }
 
 async fn sleep(
     State(state): State<Arc<AppState>>,
     Form(sleep_form): Form<SleepForm>,
-) -> Json<PostResponse> {
+) -> Json<ApiResponse> {
     // "127.0.0.1:8080"
     let (s, m) = match TcpStream::connect(sleep_form.address.as_str()).await {
         Ok(mut stream) => {
@@ -89,7 +85,7 @@ async fn sleep(
         .add_status(status)
         .await
         .expect("Couldn't write to the database");
-    Json(PostResponse::new(m))
+    Json(ApiResponse::new(m))
 }
 
 async fn status(
@@ -101,32 +97,7 @@ async fn status(
         .get_statuses()
         .await
         .expect("Couldn't get statuses");
-    let total_items = v.len();
-
     info!("{:?}", pagination);
-
-    let pages = (total_items as f64 / pagination.per_page as f64).ceil() as usize;
-    let start = (pagination.page - 1) * pagination.per_page;
-    let end = (pagination.page * pagination.per_page).min(total_items);
-    let statuses = if !v.is_empty() {
-        let mut s = v;
-        if pagination.sort == "desc" {
-            s.reverse();
-        }
-        if start >= end {
-            Vec::new()
-        } else {
-            s[start..end].to_vec()
-        }
-    } else {
-        v
-    };
-
-    Json(StatusRecord::new(
-        pagination.page,
-        pagination.per_page,
-        pages,
-        total_items,
-        statuses,
-    ))
+    let record = get_record(v, pagination);
+    Json(record)
 }
