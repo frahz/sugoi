@@ -1,0 +1,32 @@
+<div
+  class="toast pointer-events-auto w-full mt-4 animate-[toast-up_0.3s_ease-in-out] grid grid-rows-[1fr] duration-300 ease-in-out aria-hidden:grid-rows-[0fr] aria-hidden:opacity-0 aria-hidden:m-0 aria-hidden:border-0 aria-hidden:p-0 aria-hidden:overflow-hidden"
+  role="status" aria-atomic="true" aria-hidden="false" data-category="info" x-data="toast({
+    category: 'info',
+    duration: null
+  })" x-bind="$toastBindings">
+  <div
+    class="toast-content text-neutral-50 text-md bg-black border border-neutral-800 shadow-lg rounded-md overflow-hidden aria-hidden:border-0">
+    <div
+      class="flex items-center justify-between gap-x-3 p-4 [&>svg]:size-4 [&>svg]:shrink-0 [&>[role=img]]:size-4 [&>[role=img]]:shrink-0 [&>[role=img]>svg]:size-4">
+      {% if status %}
+      <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+        class="lucide lucide-circle-check text-green-500">
+        <circle cx="12" cy="12" r="10" />
+        <path d="m9 12 2 2 4-4" />
+      </svg>
+      {% else %}
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+        class="lucide lucide-circle-x text-red-500">
+        <circle cx="12" cy="12" r="10" />
+        <path d="m15 9-6 6" />
+        <path d="m9 9 6 6" />
+      </svg>
+      {% endif %}
+      <section class="flex-1 flex flex-col gap-0.5 items-start">
+        <h2 class="font-medium">{{ msg }}</h2>
+      </section>
+    </div>
+  </div>
+</div>

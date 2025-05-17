@@ -20,7 +20,7 @@ impl RootTemplate {
             record,
             rows,
             version,
-            git_ver: git_version!(),
+            git_ver: git_version!(fallback = "unknown"),
         }
     }
 }
@@ -36,5 +36,18 @@ impl StatusPartialTemplate {
     pub fn new(record: StatusRecord) -> Self {
         let rows = record.statuses.len();
         Self { record, rows }
+    }
+}
+
+#[derive(Template)]
+#[template(path = "fragments/toast.html")]
+pub struct ToastFragment {
+    msg: String,
+    status: bool,
+}
+
+impl ToastFragment {
+    pub fn new(msg: String, status: bool) -> Self {
+        Self { msg, status }
     }
 }

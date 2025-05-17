@@ -7,57 +7,142 @@
   <title> Sugoi Status Page</title>
   <link rel="stylesheet" href="/assets/main.css">
   <link rel="icon" href="/assets/favicon.webp">
+  <script>
+    document.addEventListener("alpine:init", () => {
+      window.basecoat.registerToast(Alpine);
+    });
+  </script>
+  <script src="/assets/toast.js" defer></script>
   <script src="/assets/htmx.min.js" defer></script>
+  <script src="/assets/alpine.min.js" defer></script>
 </head>
 
-<body
-  class="inset-0 w-full bg-black bg-[radial-gradient(#262626_1px,transparent_1px)] [background-size:24px_24px] flex flex-col min-h-screen">
-  {% include "header.html" %}
+<body class="inset-0 w-full bg-black bg-[radial-gradient(#262626_1px,transparent_1px)] [background-size:24px_24px]">
+  <main class="flex flex-col min-h-screen">
+    {% include "header.html" %}
+    <section class="2xl:container 2xl:mx-auto px-8 py-5 space-y-5 flex-grow flex flex-col">
+      <div class="w-full mx-auto justify-start space-x-0 space-y-4 sm:space-x-1 sm:space-y-0 flex flex-col sm:flex-row">
+        <form hx-post="/wake" hx-target="#toaster" hx-swap="beforeend"
+          hx-on::after-request="if(event.detail.successful) this.reset()" class="space-y-2 w-auto">
+          <label for="mac-address" class="font-roboto-mono text-neutral-50">Wake Device</label>
+          <div class="flex flex-row space-x-2 w-full sm:w-72">
+            <input required name="mac_address" type="text" placeholder="00:1A:2B:3C:4D:5E"
+              class="form-input block w-full sm:w-5/6 rounded-md border border-neutral-800 bg-black px-3 size-9 font-roboto-mono text-sm text-neutral-50 placeholder:text-neutral-500 disabled:cursor-not-allowed disabled:opacity-50 [&:not(:placeholder-shown):not(:focus)]:invalid:border-red-500 valid:border-green-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-300"
+              pattern="([0-9A-Fa-f]{2}[:\-]){5}([0-9A-Fa-f]{2})"
+              title="Please enter a valid MAC address in the format XX:XX:XX:XX:XX:XX" />
+            <button type="submit" tabindex="0"
+              class="flex-none inline-flex btn focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-300 size-9 p-0 capitalize">
+              <span class="sr-only">Wake up your device</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-power-icon lucide-power size-4">
+                <path d="M12 2v10" />
+                <path d="M18.4 6.6a9 9 0 1 1-12.77.04" />
+              </svg>
+            </button>
+          </div>
+        </form>
+        <form hx-post="/sleep" hx-target="#toaster" hx-swap="beforeend"
+          hx-on::after-request="if(event.detail.successful) this.reset()" class="space-y-2 w-auto">
+          <label for="address" class="font-roboto-mono text-neutral-50">Sleep Device</label>
+          <div class="flex flex-row space-x-2 w-full sm:w-72">
+            <input required name="address" type="text" placeholder="server:8080"
+              class="form-input block w-full sm:w-5/6 rounded-md border border-neutral-800 bg-black px-3 size-9 font-roboto-mono text-sm text-neutral-50 placeholder:text-neutral-500 disabled:cursor-not-allowed disabled:opacity-50 [&:not(:placeholder-shown):not(:focus)]:invalid:border-red-500 valid:border-green-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-300"
+              pattern=".*:[0-9]{4}" title="Please enter a valid server address in the format of ip:port" />
+            <button type="submit" tabindex="0"
+              class="flex-none inline-flex btn focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-300 size-9 p-0 capitalize">
+              <span class="sr-only">Put your machine to sleep</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-moon-icon lucide-moon size-4">
+                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+              </svg>
+            </button>
+          </div>
+        </form>
+      </div>
+      {% include "status/partial.html" %}
+    </section>
 
-  <main class="2xl:container lg:mx-auto px-8 py-5 space-y-5 flex-grow flex flex-col">
-    <div class="w-full mx-auto justify-start space-x-0 space-y-4 sm:space-x-1 sm:space-y-0 flex flex-col sm:flex-row">
-      <form hx-post="/api/wake" hx-target="#response-div" class="space-y-2 w-auto">
-        <label for="mac-address" class="font-roboto-mono text-neutral-50">Wake Device</label>
-        <div class="flex flex-row space-x-2 w-full sm:w-72">
-          <input required name="mac_address" type="text" placeholder="00:1A:2B:3C:4D:5E"
-            class="form-input block w-full sm:w-5/6 rounded-md border border-neutral-800 bg-black px-3 size-9 font-roboto-mono text-sm text-neutral-50 placeholder:text-neutral-500 disabled:cursor-not-allowed disabled:opacity-50 [&:not(:placeholder-shown):not(:focus)]:invalid:border-red-500 valid:border-green-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-300"
-            pattern="([0-9A-Fa-f]{2}[:\-]){5}([0-9A-Fa-f]{2})"
-            title="Please enter a valid MAC address in the format XX:XX:XX:XX:XX:XX" />
-          <button type="submit" tabindex="0"
-            class="flex-none inline-flex btn focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-300 size-9 p-0 capitalize">
-            <span class="sr-only">Wake up your device</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-power-icon lucide-power size-4">
-              <path d="M12 2v10" />
-              <path d="M18.4 6.6a9 9 0 1 1-12.77.04" />
-            </svg>
-          </button>
-        </div>
-      </form>
-      <form hx-post="/api/sleep" hx-target="#response-div" class="space-y-2 w-auto">
-        <label for="address" class="font-roboto-mono text-neutral-50">Sleep Device</label>
-        <div class="flex flex-row space-x-2 w-full sm:w-72">
-          <input required name="address" type="text" placeholder="server:8080"
-            class="form-input block w-full sm:w-5/6 rounded-md border border-neutral-800 bg-black px-3 size-9 font-roboto-mono text-sm text-neutral-50 placeholder:text-neutral-500 disabled:cursor-not-allowed disabled:opacity-50 [&:not(:placeholder-shown):not(:focus)]:invalid:border-red-500 valid:border-green-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-300"
-            pattern=".*:[0-9]{4}" title="Please enter a valid server address in the format of ip:port" />
-          <button type="submit" tabindex="0"
-            class="flex-none inline-flex btn focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-300 size-9 p-0 capitalize">
-            <span class="sr-only">Put your machine to sleep</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-moon-icon lucide-moon size-4">
-              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-            </svg>
-          </button>
-        </div>
-      </form>
-    </div>
-    {% include "status/partial.html" %}
-    <div id="response-div"></div>
+    {% include "footer.html" %}
   </main>
-
-  {% include "footer.html" %}
+  <div id="toaster"
+    class="toaster fixed bottom-0 p-8 pointer-events-none z-50 w-full sm:max-w-96 flex flex-col-reverse right-0">
+  </div>
+  <template id="toast-template">
+    <div class="toast" role="status" aria-atomic="true" x-bind="$toastBindings">
+      <div class="toast-content">
+        <div
+          class="flex items-center justify-between gap-x-3 p-4 [&>svg]:size-4 [&>svg]:shrink-0 [&>[role=img]]:size-4 [&>[role=img]]:shrink-0 [&>[role=img]>svg]:size-4">
+          <template x-if="config.icon">
+            <span aria-hidden="true" role="img" x-html="config.icon"></span>
+          </template>
+          <template x-if="!config.icon && config.category === 'success'">
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-circle-check-icon lucide-circle-check">
+              <circle cx="12" cy="12" r="10" />
+              <path d="m9 12 2 2 4-4" />
+            </svg>
+          </template>
+          <template x-if="!config.icon && config.category === 'error'">
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-circle-x-icon lucide-circle-x">
+              <circle cx="12" cy="12" r="10" />
+              <path d="m15 9-6 6" />
+              <path d="m9 9 6 6" />
+            </svg>
+          </template>
+          <template x-if="!config.icon && config.category === 'info'">
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-info-icon lucide-info">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 16v-4" />
+              <path d="M12 8h.01" />
+            </svg>
+          </template>
+          <template x-if="!config.icon && config.category === 'warning'">
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-triangle-alert-icon lucide-triangle-alert">
+              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
+              <path d="M12 9v4" />
+              <path d="M12 17h.01" />
+            </svg>
+          </template>
+          <section class="flex-1 flex flex-col gap-0.5 items-start">
+            <template x-if="config.title">
+              <h2 class="font-medium" x-text="config.title"></h2>
+            </template>
+            <template x-if="config.description">
+              <p class="text-muted-foreground" x-text="config.description"></p>
+            </template>
+          </section>
+          <template x-if="config.action || config.cancel">
+            <footer class="flex flex-col gap-1 self-start">
+              <template x-if="config.action?.click">
+                <button type="button" class="btn h-6 text-xs px-2.5 rounded-sm"
+                  @click="executeAction(config.action.click)" x-text="config.action.label"></button>
+              </template>
+              <template x-if="config.action?.url">
+                <a :href="config.action.url" class="btn h-6 text-xs px-2.5 rounded-sm" x-text="config.action.label"></a>
+              </template>
+              <template x-if="config.cancel?.click">
+                <button type="button" class="btn-outline h-6 text-xs px-2.5 rounded-sm"
+                  @click="executeAction(config.cancel.click)" x-text="config.cancel.label"></button>
+              </template>
+              <template x-if="config.cancel?.url">
+                <a :href="config.cancel.url" class="btn-outline h-6 text-xs px-2.5 rounded-sm"
+                  x-text="config.cancel.label"></a>
+              </template>
+            </footer>
+          </template>
+        </div>
+      </div>
+    </div>
+  </template>
 </body>
 
 </html>

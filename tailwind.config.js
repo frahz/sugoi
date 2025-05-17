@@ -4,7 +4,16 @@ const plugin = require('tailwindcss/plugin');
 module.exports = {
   content: ['./templates/**/*.html'],
   theme: {
-    extend: {},
+    extend: {
+      keyframes: {
+        'toast-up': {
+          'from': {
+            opacity: 0,
+            transform: "translateY(100%)",
+          }
+        }
+      }
+    },
     fontFamily: {
       'roboto-mono': ['Roboto Mono', 'monospace']
     }

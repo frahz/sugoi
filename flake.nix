@@ -2,12 +2,18 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     rust-overlay.url = "github:oxalica/rust-overlay";
+
+    alpine-js-src = {
+      url = "https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/cdn.min.js";
+      flake = false;
+    };
   };
 
   outputs = {
     self,
     nixpkgs,
     rust-overlay,
+    alpine-js-src,
     ...
   }: let
     systems = [
@@ -38,6 +44,10 @@
             ${pkgs.tailwindcss_3}/bin/tailwindcss -i ./assets/tailwind.css -o ./assets/main.css --minify
           '')
         ];
+        shellHook = ''
+          mkdir -p assets
+          cp -f ${alpine-js-src} assets/alpine.min.js
+        '';
       };
     });
 
@@ -55,6 +65,13 @@
         };
         nativeBuildInputs = [pkgs.makeWrapper];
         buildInputs = [pkgs.sqlite];
+
+        postUnpack = ''
+          # pushd source
+          mkdir -p assets
+          cp -f ${alpine-js-src} assets/alpine.min.js
+          # popd
+        '';
 
         postInstall = ''
           mkdir -p $out/share

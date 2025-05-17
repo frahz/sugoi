@@ -1,5 +1,17 @@
 {
   "nodes": {
+    "alpine-js-src": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-puJBvBaHVqKaKYCngvzz+Y8rUF99evd+UCtGuXd3YMY=",
+        "type": "file",
+        "url": "https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/cdn.min.js"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/cdn.min.js"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1746328495,
@@ -34,6 +46,7 @@
     },
     "root": {
       "inputs": {
+        "alpine-js-src": "alpine-js-src",
         "nixpkgs": "nixpkgs",
         "rust-overlay": "rust-overlay"
       }

@@ -10,6 +10,7 @@ use std::sync::Arc;
 
 use api::get_api_routes;
 use axum::response::Redirect;
+use axum::routing::post;
 use axum::{routing::get, Router};
 use tokio::net::TcpListener;
 use tower_http::{compression::CompressionLayer, services::ServeDir};
@@ -46,6 +47,8 @@ async fn main() {
     let app = Router::new()
         .route("/", get(handlers::status))
         .route("/status", get(|| async { Redirect::temporary("/") }))
+        .route("/wake", post(handlers::wake))
+        .route("/sleep", post(handlers::sleep))
         .nest("/api", get_api_routes())
         .with_state(shared_state)
         .nest_service("/assets", ServeDir::new(get_assets_dir()))

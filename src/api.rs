@@ -15,8 +15,8 @@ use crate::models::{
 };
 use crate::AppState;
 
-const MAGIC_PACKET: u8 = 0x77;
-const DEFAULT_BROADCAST_IP: &str = "255.255.255.255:9";
+pub(crate) const MAGIC_PACKET: u8 = 0x77;
+pub(crate) const DEFAULT_BROADCAST_IP: &str = "255.255.255.255:9";
 
 pub fn get_api_routes() -> Router<Arc<AppState>> {
     Router::new()
@@ -75,7 +75,7 @@ async fn sleep(
         }
         Err(e) => {
             error!("{e}");
-            let msg = format!("Got Error when connecting address: {e}");
+            let msg = format!("Got error when connecting address: {e}");
             (false, msg)
         }
     };
