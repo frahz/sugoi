@@ -1,12 +1,15 @@
-self: {
+self:
+{
   inputs,
   config,
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.services.sugoi;
-in {
+in
+{
   options.services.sugoi = {
     enable = lib.mkEnableOption "sugoi daemon";
     package = lib.mkOption {
@@ -22,15 +25,15 @@ in {
 
   config = lib.mkIf cfg.enable {
     networking.firewall = {
-      allowedTCPPorts = [cfg.port];
-      allowedUDPPorts = [cfg.port];
+      allowedTCPPorts = [ cfg.port ];
+      allowedUDPPorts = [ cfg.port ];
     };
 
     systemd.services.sugoi = {
       enable = true;
       description = "sugoi wakeup service";
-      after = ["network.target"];
-      wantedBy = ["multi-user.target"];
+      after = [ "network.target" ];
+      wantedBy = [ "multi-user.target" ];
       environment = {
         PORT = toString cfg.port;
         SUGOI_DB_PATH = "/var/lib/sugoi/sugoi.db";
