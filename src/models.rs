@@ -43,7 +43,7 @@ impl Display for CommandState {
 }
 
 impl ToSql for CommandState {
-    fn to_sql(&self) -> rusqlite::Result<ToSqlOutput> {
+    fn to_sql(&self) -> rusqlite::Result<ToSqlOutput<'_>> {
         Ok(ToSqlOutput::from(match self {
             CommandState::Wake => "Wake",
             CommandState::Sleep => "Sleep",
@@ -84,7 +84,7 @@ impl Serialize for Timestamp {
 }
 
 impl ToSql for Timestamp {
-    fn to_sql(&self) -> rusqlite::Result<ToSqlOutput> {
+    fn to_sql(&self) -> rusqlite::Result<ToSqlOutput<'_>> {
         let iso_string = self.0.to_string();
         Ok(iso_string.into())
     }
