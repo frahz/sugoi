@@ -1,7 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    rust-overlay.url = "github:oxalica/rust-overlay";
+    nixpkgs.url = "https://channels.nixos.org/nixpkgs-unstable/nixexprs.tar.zst";
 
     alpine-js-src = {
       url = "https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/cdn.min.js";
@@ -13,7 +12,6 @@
     {
       self,
       nixpkgs,
-      rust-overlay,
       alpine-js-src,
       ...
     }:
@@ -24,32 +22,28 @@
         "aarch64-darwin"
       ];
       forAllSystems =
-        function:
-        nixpkgs.lib.genAttrs systems (
-          system:
-          function (
-            import nixpkgs {
-              inherit system;
-              overlays = [ rust-overlay.overlays.default ];
-            }
-          )
-        );
+        function: nixpkgs.lib.genAttrs systems (system: function nixpkgs.legacyPackages.${system});
     in
     {
       devShells = forAllSystems (pkgs: {
         default = pkgs.mkShell {
-          buildInputs = [
-            pkgs.bacon
-            pkgs.rust-bin.stable.latest.default
-            pkgs.sqlite
-            pkgs.tailwindcss_3
-            (pkgs.writeShellScriptBin "tw-watch" ''
+          packages = builtins.attrValues {
+            inherit (pkgs)
+              bacon
+              cargo
+              clippy
+              rustc
+              rustfmt
+              sqlite
+              tailwindcss_3
+              ;
+            tw-watch = pkgs.writeShellScriptBin "tw-watch" ''
               ${pkgs.tailwindcss_3}/bin/tailwindcss -i ./assets/tailwind.css -o ./assets/main.css --watch
-            '')
-            (pkgs.writeShellScriptBin "tw-prod" ''
+            '';
+            tw-prod = pkgs.writeShellScriptBin "tw-prod" ''
               ${pkgs.tailwindcss_3}/bin/tailwindcss -i ./assets/tailwind.css -o ./assets/main.css --minify
-            '')
-          ];
+            '';
+          };
           shellHook = ''
             mkdir -p assets
             cp -f ${alpine-js-src} assets/alpine.min.js
