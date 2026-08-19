@@ -11,7 +11,7 @@ use std::sync::Arc;
 use api::get_api_routes;
 use axum::response::Redirect;
 use axum::routing::post;
-use axum::{routing::get, Router};
+use axum::{Router, routing::get};
 use tokio::net::TcpListener;
 use tower_http::{compression::CompressionLayer, services::ServeDir};
 use tracing::info;

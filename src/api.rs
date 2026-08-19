@@ -4,16 +4,16 @@ use axum::extract::{Query, State};
 use axum::routing::{get, post};
 use axum::{Form, Json, Router};
 use low::macaddr::MacAddress;
-use low::wol::{create_socket, WolPacket};
+use low::wol::{WolPacket, create_socket};
 use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
 use tracing::{error, info};
 
-use crate::models::{
-    get_record, CommandState, ApiResponse, SleepForm, Status, StatusPagination, StatusRecord,
-    WakeForm,
-};
 use crate::AppState;
+use crate::models::{
+    ApiResponse, CommandState, SleepForm, Status, StatusPagination, StatusRecord, WakeForm,
+    get_record,
+};
 
 pub(crate) const MAGIC_PACKET: u8 = 0x77;
 pub(crate) const DEFAULT_BROADCAST_IP: &str = "255.255.255.255:9";
@@ -38,7 +38,7 @@ async fn wake(
     let socket = create_socket(DEFAULT_BROADCAST_IP).unwrap();
     let (s, m) = match socket.send_to(&wol_packet.0, DEFAULT_BROADCAST_IP) {
         Ok(_) => {
-            info!("Sent wake to server packet len: {}", &wol_packet.0.len());
+            info!("Sent wake to server packet len: {}", wol_packet.0.len());
             (true, format!("MAC Address: {}", wake_form.mac_address))
         }
         Err(e) => {

@@ -2,8 +2,8 @@ use std::fmt::Display;
 use std::str::FromStr;
 
 use jiff::Zoned;
-use rusqlite::types::{FromSql, FromSqlError, ToSqlOutput};
 use rusqlite::ToSql;
+use rusqlite::types::{FromSql, FromSqlError, ToSqlOutput};
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize)]

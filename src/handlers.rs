@@ -1,20 +1,20 @@
 use std::sync::Arc;
 
 use askama::Template;
+use axum::Form;
 use axum::extract::{Query, State};
 use axum::http::{HeaderMap, StatusCode};
 use axum::response::{Html, IntoResponse};
-use axum::Form;
 use low::macaddr::MacAddress;
-use low::wol::{create_socket, WolPacket};
+use low::wol::{WolPacket, create_socket};
 use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
 use tracing::{error, info};
 
-use crate::api::{DEFAULT_BROADCAST_IP, MAGIC_PACKET};
-use crate::models::{get_record, CommandState, SleepForm, Status, StatusPagination, WakeForm};
-use crate::templates::{RootTemplate, StatusPartialTemplate, ToastFragment};
 use crate::AppState;
+use crate::api::{DEFAULT_BROADCAST_IP, MAGIC_PACKET};
+use crate::models::{CommandState, SleepForm, Status, StatusPagination, WakeForm, get_record};
+use crate::templates::{RootTemplate, StatusPartialTemplate, ToastFragment};
 
 pub async fn wake(
     State(state): State<Arc<AppState>>,
@@ -30,7 +30,7 @@ pub async fn wake(
     let socket = create_socket(DEFAULT_BROADCAST_IP).unwrap();
     let (s, m) = match socket.send_to(&wol_packet.0, DEFAULT_BROADCAST_IP) {
         Ok(_) => {
-            info!("Sent wake to server packet len: {}", &wol_packet.0.len());
+            info!("Sent wake to server packet len: {}", wol_packet.0.len());
             (true, format!("MAC Address: {}", wake_form.mac_address))
         }
         Err(e) => {
