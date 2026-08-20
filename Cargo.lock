@@ -1054,7 +1054,7 @@ dependencies = [
 
 [[package]]
 name = "sugoi"
-version = "0.5.2"
+version = "0.5.3"
 dependencies = [
  "askama",
  "async-sqlite",
